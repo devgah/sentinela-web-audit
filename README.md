@@ -39,6 +39,14 @@ Esta ferramenta é fornecida **"como está"**, para **fins educacionais, treinam
 
 **Nota de licença:** o código da aplicação é MIT. Dependências de terceiros mantêm suas próprias licenças (por exemplo, PySide6 é LGPLv3/comercial); os avisos correspondentes devem ser incluídos no pacote final.
 
+## Motor HTTP e cabeçalhos (Dia 2)
+
+- Normaliza a entrada para URLs absolutas `http`/`https`, rejeitando credenciais embutidas e caracteres de controle.
+- Requisições com `timeout` de conexão/leitura, no máximo 5 redirecionamentos e verificação TLS sempre ativa.
+- `trust_env = False`: não usa proxies nem `.netrc` do ambiente, evitando vazamentos involuntários.
+- Apenas cabeçalhos são lidos (`stream=True`); URLs em relatórios são sanitizadas sem query, fragmento ou credenciais.
+- Cabeçalhos avaliados: `Content-Security-Policy`, `Strict-Transport-Security`, `X-Frame-Options`, `X-Content-Type-Options` e `Referrer-Policy`.
+
 ## Estrutura inicial
 
 ```text
@@ -63,7 +71,7 @@ Esta ferramenta é fornecida **"como está"**, para **fins educacionais, treinam
 ## Roadmap (7 dias)
 
 - [x] **Dia 1** — Setup, stack, README com Disclaimer, MIT, `.gitignore` e estrutura de pastas
-- [ ] **Dia 2** — Motor HTTP e análise de cabeçalhos de segurança
+- [x] **Dia 2** — Motor HTTP e análise de cabeçalhos de segurança
 - [ ] **Dia 3** — TLS, cookies e CORS
 - [ ] **Dia 4** — Descoberta passiva (`robots.txt`, `sitemap.xml`, `security.txt`, tecnologias)
 - [ ] **Dia 5** — Gerador de relatórios Markdown/HTML/PDF com severidades e remediação
