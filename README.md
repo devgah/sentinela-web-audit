@@ -1,0 +1,83 @@
+# Sentinela Web Audit
+
+> Auditoria passiva de segurança web — 100% local, sem telemetria, sem login, sem coleta de dados.
+
+Ferramenta desktop open source para analisar boas práticas de segurança em aplicações web a partir da máquina do usuário. Ela inspeciona a superfície pública (cabeçalhos HTTP, TLS, cookies, CORS, arquivos públicos e tecnologias expostas) e gera um relatório técnico com achados classificados por severidade e sugestões de correção baseadas em OWASP.
+
+**Status:** Em construção — Dia 1/7 (setup e base).
+
+## ⚠️ Disclaimer / Aviso legal
+
+Esta ferramenta é fornecida **"como está"**, para **fins educacionais, treinamento e auditorias defensivas em domínios próprios ou expressamente autorizados**.
+
+- Use **apenas** em alvos que você possui ou para os quais possui autorização por escrito.
+- A ferramenta realiza **análise passiva**: não explora vulnerabilidades, não executa payloads de ataque, não faz força bruta, não realiza scanners agressivos e não modifica o alvo.
+- Não há envio de dados para serviços externos: nenhuma telemetria, analytics, autenticação, API de terceiros ou upload de relatórios. A única comunicação de rede é a requisição ao próprio alvo informado pelo usuário.
+- O uso indevido desta ferramenta é de responsabilidade exclusiva do usuário e pode violar leis locais. Os mantenedores não se responsabilizam por danos ou uso inadequado.
+- Consulte a [Licença MIT](LICENSE) para os termos de uso do código.
+
+## Princípios
+
+- **Local-first:** execução e dados permanecem no computador do usuário.
+- **Passivo por design:** inspeção de superfície, sem exploração ativa.
+- **Didático:** cada achado explica risco, severidade e remediação.
+- **Auditável:** código aberto, dependências conhecidas e build reproduzível.
+
+## Stack proposta
+
+| Camada | Tecnologia | Motivo |
+| --- | --- | --- |
+| Desktop | **PySide6 (Qt for Python)** | UI nativa multiplataforma, boa acessibilidade e empacotável |
+| Lógica/redes | **Python 3.11+** + `requests` | HTTP com timeout, erros tratados e comportamento previsível |
+| TLS | `cryptography` | Leitura de certificados, validade e emissor sem serviços externos |
+| Parsing HTML | `beautifulsoup4` | Detecção passiva de meta tags e arquivos públicos |
+| Relatórios | `Jinja2` + Markdown | Templates HTML e saída Markdown; PDF gerado localmente na etapa final |
+| Empacotamento | **PyInstaller** | Executável local para Windows/Linux/macOS |
+| Testes/qualidade | `pytest` + `ruff` | Testes automatizados e lint no Dia 7 |
+
+> Alternativa considerada: **Tauri** (Rust + frontend web) gera binários menores, mas aumenta a complexidade dentro da janela de 7 dias. Para este escopo, Python + PySide6 entrega mais rápido com excelente suporte a TLS e relatórios.
+
+**Nota de licença:** o código da aplicação é MIT. Dependências de terceiros mantêm suas próprias licenças (por exemplo, PySide6 é LGPLv3/comercial); os avisos correspondentes devem ser incluídos no pacote final.
+
+## Estrutura inicial
+
+```text
+.
+├── LICENSE
+├── README.md
+├── pyproject.toml
+├── .gitignore
+├── src/
+│   └── sentinela/
+│       ├── __init__.py
+│       ├── core/          # configuração, modelos e utilitários
+│       ├── analyzers/     # headers, TLS, cookies, CORS e descoberta passiva
+│       ├── reports/       # Markdown/HTML/PDF
+│       └── ui/            # interface PySide6
+├── tests/
+├── docs/
+├── assets/
+└── packaging/
+```
+
+## Roadmap (7 dias)
+
+- [x] **Dia 1** — Setup, stack, README com Disclaimer, MIT, `.gitignore` e estrutura de pastas
+- [ ] **Dia 2** — Motor HTTP e análise de cabeçalhos de segurança
+- [ ] **Dia 3** — TLS, cookies e CORS
+- [ ] **Dia 4** — Descoberta passiva (`robots.txt`, `sitemap.xml`, `security.txt`, tecnologias)
+- [ ] **Dia 5** — Gerador de relatórios Markdown/HTML/PDF com severidades e remediação
+- [ ] **Dia 6** — Interface desktop com aviso de uso responsável, progresso e exportação
+- [ ] **Dia 7** — Testes, revisão, build do executável e documentação final
+
+## Como executar
+
+Ainda não disponível. O comando de execução será documentado após a interface do Dia 6.
+
+## Como contribuir
+
+Contribuições são bem-vindas depois que a base for estabilizada. Antes de abrir uma issue ou PR, confirme que a proposta continua estritamente defensiva, passiva e local.
+
+## Licença
+
+Distribuído sob a licença [MIT](LICENSE).
