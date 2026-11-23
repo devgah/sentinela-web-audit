@@ -47,6 +47,12 @@ Esta ferramenta é fornecida **"como está"**, para **fins educacionais, treinam
 - Apenas cabeçalhos são lidos (`stream=True`); URLs em relatórios são sanitizadas sem query, fragmento ou credenciais.
 - Cabeçalhos avaliados: `Content-Security-Policy`, `Strict-Transport-Security`, `X-Frame-Options`, `X-Content-Type-Options` e `Referrer-Policy`.
 
+## TLS, cookies e CORS (Dia 3)
+
+- **TLS:** handshake local para ler certificado apresentado, issuer, SAN, validade, protocolo e cipher. A leitura usa um contexto sem verificação apenas para obter certificados inválidos; uma segunda conexão com o contexto padrão do sistema valida cadeia e hostname. As requisições HTTP continuam com verificação ativa.
+- **Cookies:** auditoria de `HttpOnly`, `Secure` e `SameSite` diretamente de `Set-Cookie`. Valores nunca são gravados no relatório — apenas o nome e os atributos observados.
+- **CORS:** avaliação de `Access-Control-Allow-Origin`, `Access-Control-Allow-Credentials`, métodos/cabeçalhos e `Vary: Origin`, sem enviar requisições com `Origin` forjado.
+
 ## Estrutura inicial
 
 ```text
@@ -72,7 +78,7 @@ Esta ferramenta é fornecida **"como está"**, para **fins educacionais, treinam
 
 - [x] **Dia 1** — Setup, stack, README com Disclaimer, MIT, `.gitignore` e estrutura de pastas
 - [x] **Dia 2** — Motor HTTP e análise de cabeçalhos de segurança
-- [ ] **Dia 3** — TLS, cookies e CORS
+- [x] **Dia 3** — TLS, cookies e CORS
 - [ ] **Dia 4** — Descoberta passiva (`robots.txt`, `sitemap.xml`, `security.txt`, tecnologias)
 - [ ] **Dia 5** — Gerador de relatórios Markdown/HTML/PDF com severidades e remediação
 - [ ] **Dia 6** — Interface desktop com aviso de uso responsável, progresso e exportação

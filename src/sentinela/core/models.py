@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Literal
 
@@ -60,6 +61,48 @@ class Redirect:
 
     url: str
     status_code: int
+
+
+@dataclass(frozen=True, slots=True)
+class TlsSnapshot:
+    """Dados observados de um handshake TLS, sem serviços externos."""
+
+    host: str
+    port: int
+    protocol: str
+    cipher: str | None
+    subject: str
+    issuer: str
+    serial_number: str
+    not_before: datetime
+    not_after: datetime
+    san: tuple[str, ...]
+    is_trusted: bool
+    hostname_matches: bool
+    validation_error: str | None = None
+    checked_at: datetime = field(
+        default_factory=lambda: datetime.now(timezone.utc)
+    )
+
+    @property
+    def is_expired(self) -> bool:
+        """Indica se o certificado já expirou."""
+        return self.not_after < self.checked_at
+
+    @property
+    def is_not_yet_valid(self) -> bool:
+        """Indica se o certificado ainda não entrou em vigor."""
+        return self.not_before > self.checked_at
+
+    @property
+    def days_remaining(self) -> int:
+        """Dias inteiros restantes até o vencimento."""
+        return int((self.not_after - self.checked_at).total_seconds() // 86_400)
+
+    @property
+    def is_self_signed(self) -> bool:
+        """Compara subject e issuer para detectar autoassinatura aparente."""
+        return self.subject == self.issuer
 
 
 @dataclass(frozen=True, slots=True)

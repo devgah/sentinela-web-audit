@@ -13,3 +13,7 @@ class InvalidTargetError(SentinelaError):
 
 class HttpRequestError(SentinelaError):
     """Falha ao obter a resposta HTTP do alvo."""
+
+
+class TlsInspectionError(SentinelaError):
+    """Não foi possível inspecionar o certificado TLS do alvo."""
