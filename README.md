@@ -53,6 +53,13 @@ Esta ferramenta é fornecida **"como está"**, para **fins educacionais, treinam
 - **Cookies:** auditoria de `HttpOnly`, `Secure` e `SameSite` diretamente de `Set-Cookie`. Valores nunca são gravados no relatório — apenas o nome e os atributos observados.
 - **CORS:** avaliação de `Access-Control-Allow-Origin`, `Access-Control-Allow-Credentials`, métodos/cabeçalhos e `Vary: Origin`, sem enviar requisições com `Origin` forjado.
 
+## Descoberta passiva (Dia 4)
+
+- Lê `robots.txt`, `sitemap.xml` (ou o sitemap declarado no robots, apenas na mesma origem) e `security.txt` nas localizações `/.well-known/` e raiz.
+- Limita cada resposta textual a 512 KiB e ignora `DOCTYPE`/`ENTITY` em XML por precaução.
+- Não segue links externos, não forja `Origin` e não testa caminhos adivinhados: apenas arquivos públicos conhecidos e a própria URL informada.
+- Detecta tecnologias a partir de cabeçalhos como `Server`, `X-Powered-By`, `X-Generator` e de meta tags `generator`/`framework`, sem consultar bases de CVE externas.
+
 ## Estrutura inicial
 
 ```text
@@ -79,7 +86,7 @@ Esta ferramenta é fornecida **"como está"**, para **fins educacionais, treinam
 - [x] **Dia 1** — Setup, stack, README com Disclaimer, MIT, `.gitignore` e estrutura de pastas
 - [x] **Dia 2** — Motor HTTP e análise de cabeçalhos de segurança
 - [x] **Dia 3** — TLS, cookies e CORS
-- [ ] **Dia 4** — Descoberta passiva (`robots.txt`, `sitemap.xml`, `security.txt`, tecnologias)
+- [x] **Dia 4** — Descoberta passiva (`robots.txt`, `sitemap.xml`, `security.txt`, tecnologias)
 - [ ] **Dia 5** — Gerador de relatórios Markdown/HTML/PDF com severidades e remediação
 - [ ] **Dia 6** — Interface desktop com aviso de uso responsável, progresso e exportação
 - [ ] **Dia 7** — Testes, revisão, build do executável e documentação final

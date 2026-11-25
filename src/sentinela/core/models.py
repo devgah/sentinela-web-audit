@@ -106,6 +106,17 @@ class TlsSnapshot:
 
 
 @dataclass(frozen=True, slots=True)
+class HttpTextSnapshot:
+    """Resposta HTTP textual com limite de bytes previamente aplicado."""
+
+    response: HttpSnapshot
+    body: str
+    content_type: str
+    truncated: bool
+    bytes_read: int
+
+
+@dataclass(frozen=True, slots=True)
 class HttpSnapshot:
     """Resposta HTTP capturada localmente.
 
