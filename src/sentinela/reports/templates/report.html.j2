@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'none'; style-src 'unsafe-inline'; img-src 'none'">
+  <title>Relatório de auditoria passiva — Sentinela Web Audit</title>
+  <style>
+    :root { color-scheme: light; }
+    body {
+      margin: 0 auto; padding: 32px 24px; max-width: 960px;
+      background: #f6f8fa; color: #1f2328;
+      font: 15px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    h1 { font-size: 26px; margin: 0 0 8px; }
+    h2 { font-size: 19px; margin: 28px 0 12px; }
+    h3 { font-size: 16px; margin: 0 0 10px; }
+    a { color: #0969da; }
+    code { background: #eaeef2; padding: 1px 5px; border-radius: 4px; font-size: 13px; }
+    .card {
+      background: #ffffff; border: 1px solid #d0d7de; border-radius: 8px;
+      padding: 18px 22px; margin-bottom: 18px;
+    }
+    .disclaimer { border-left: 4px solid #9a6700; background: #fff8c5; }
+    .disclaimer p { margin: 0 0 8px; }
+    .disclaimer p:last-child { margin-bottom: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 8px 0; }
+    th, td { text-align: left; padding: 7px 9px; border-bottom: 1px solid #d0d7de; }
+    th { background: #f6f8fa; font-size: 13px; }
+    td.number, th.number { text-align: right; }
+    .badge {
+      display: inline-block; padding: 2px 8px; border-radius: 999px;
+      font-size: 12px; font-weight: 600; color: #ffffff;
+    }
+    .badge.high { background: #b42318; }
+    .badge.medium { background: #9a6700; }
+    .badge.low { background: #0969da; }
+    .badge.info { background: #57606a; }
+    .finding { border: 1px solid #d0d7de; border-radius: 6px; padding: 14px 16px; margin: 12px 0; }
+    .finding dl { display: grid; grid-template-columns: 120px 1fr; gap: 4px 12px; margin: 0; }
+    .finding dt { font-weight: 600; color: #57606a; }
+    .finding dd { margin: 0; overflow-wrap: anywhere; }
+    .muted { color: #57606a; font-size: 13px; }
+    .empty { color: #57606a; }
+    footer { margin-top: 28px; color: #57606a; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <h1>Relatório de auditoria passiva</h1>
+  <p class="muted">Sentinela Web Audit — análise 100% local, passiva e defensiva.</p>
+
+  <section class="card disclaimer">
+    <h2>Aviso legal</h2>
+    {% for line in disclaimer_lines %}
+    <p>{{ line }}</p>
+    {% endfor %}
+  </section>
+
+  <section class="card">
+    <h2>Contexto da execução</h2>
+    <table>
+      <tbody>
+        <tr><th>Alvo</th><td>{{ report.target }}</td></tr>
+        <tr><th>Gerado em</th><td>{{ generated_at }}</td></tr>
+        <tr><th>Versão da ferramenta</th><td>{{ report.tool_version }}</td></tr>
+        <tr><th>Risco geral</th><td>{{ report.risk_label }}</td></tr>
+        <tr><th>Total de achados</th><td>{{ report.total_findings }}</td></tr>
+      </tbody>
+    </table>
+    <p>Escopo passivo permitido:</p>
+    <ul>
+      {% for item in scope %}<li>{{ item }}</li>{% endfor %}
+    </ul>
+    <p>Nenhuma exploração, payload, força bruta ou modificação do alvo foi
+       realizada. Valores de cookies não são gravados neste relatório.</p>
+  </section>
+
+  <section class="card">
+    <h2>Resumo por severidade</h2>
+    <table>
+      <thead><tr><th>Severidade</th><th class="number">Achados</th></tr></thead>
+      <tbody>
+        {% for severity in severities %}
+        <tr>
+          <td><span class="badge {{ severity.value }}">{{ severity.label }}</span></td>
+          <td class="number">{{ counts[severity] }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <p class="muted">{{ interpretation }}</p>
+  </section>
+
+  <section class="card">
+    <h2>Achados</h2>
+    {% for severity, group in grouped %}
+    <h3><span class="badge {{ severity.value }}">{{ severity.label }}</span>
+        {{ group|length }} achado(s)</h3>
+    <p class="muted">{{ risk_by_severity[severity] }}</p>
+    {% for item in group %}
+    <article class="finding">
+      <h3><code>{{ item.code }}</code> {{ item.title }}</h3>
+      <dl>
+        <dt>Severidade</dt><dd>{{ severity.label }}</dd>
+        <dt>Status</dt><dd>{{ status_labels.get(item.status, item.status) }}</dd>
+        <dt>Risco</dt><dd>{{ risk_by_severity[severity] }}</dd>
+        <dt>Diagnóstico</dt><dd>{{ item.message }}</dd>
+        {% if item.evidence %}<dt>Evidência</dt><dd>{{ item.evidence }}</dd>{% endif %}
+        <dt>Remediação</dt><dd>{{ item.remediation }}</dd>
+        <dt>Referências</dt>
+        <dd>{% if item.references %}{{ item.references|join('; ') }}{% else %}-{% endif %}</dd>
+      </dl>
+    </article>
+    {% endfor %}
+    {% else %}
+    <p class="empty">Nenhum achado foi registrado nesta execução.</p>
+    {% endfor %}
+  </section>
+
+  <footer>Relatório gerado localmente. Nenhum dado foi enviado a serviços externos.</footer>
+</body>
+</html>
