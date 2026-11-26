@@ -10,7 +10,7 @@ from __future__ import annotations
 import ipaddress
 import socket
 import ssl
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Final
 
 from cryptography import x509
@@ -34,8 +34,8 @@ _NAME_LABELS: Final[dict[NameOID, str]] = {
 def _as_utc(value: datetime) -> datetime:
     """Garante datetime timezone-aware em UTC."""
     if value.tzinfo is None:
-        return value.replace(tzinfo=timezone.utc)
-    return value.astimezone(timezone.utc)
+        return value.replace(tzinfo=UTC)
+    return value.astimezone(UTC)
 
 
 def _name_to_string(name: x509.Name) -> str:
@@ -97,9 +97,12 @@ def _hostname_matches(
         candidate = entry.lower().rstrip(".")
         if candidate == target:
             return True
-        if candidate.startswith("*.") and target.endswith(candidate[1:]):
-            if target.count(".") == candidate.count("."):
-                return True
+        if (
+            candidate.startswith("*.")
+            and target.endswith(candidate[1:])
+            and target.count(".") == candidate.count(".")
+        ):
+            return True
 
     if not san:
         return any(value.lower().rstrip(".") == target for value in common_names)
@@ -111,9 +114,11 @@ def _validate_chain(host: str, port: int, timeout: float) -> tuple[bool, str | N
     """Usa o contexto confiável do sistema para validar cadeia e hostname."""
     context = ssl.create_default_context()
     try:
-        with socket.create_connection((host, port), timeout=timeout) as raw_socket:
-            with context.wrap_socket(raw_socket, server_hostname=host) as tls_socket:
-                tls_socket.getpeercert(binary_form=True)
+        with (
+            socket.create_connection((host, port), timeout=timeout) as raw_socket,
+            context.wrap_socket(raw_socket, server_hostname=host) as tls_socket,
+        ):
+            tls_socket.getpeercert(binary_form=True)
         return True, None
     except ssl.SSLCertVerificationError as exc:
         message = getattr(exc, "verify_message", None) or str(exc)
@@ -135,16 +140,18 @@ def _fetch_peer(
     context.verify_mode = ssl.CERT_NONE
 
     try:
-        with socket.create_connection((host, port), timeout=timeout) as raw_socket:
-            with context.wrap_socket(raw_socket, server_hostname=host) as tls_socket:
-                certificate_der = tls_socket.getpeercert(binary_form=True)
-                if not certificate_der:
-                    raise TlsInspectionError(
-                        f"O servidor {host}:{port} não apresentou certificado."
-                    )
-                cipher = tls_socket.cipher()
-                protocol = tls_socket.version() or "desconhecido"
-                return certificate_der, protocol, cipher[0] if cipher else None
+        with (
+            socket.create_connection((host, port), timeout=timeout) as raw_socket,
+            context.wrap_socket(raw_socket, server_hostname=host) as tls_socket,
+        ):
+            certificate_der = tls_socket.getpeercert(binary_form=True)
+            if not certificate_der:
+                raise TlsInspectionError(
+                    f"O servidor {host}:{port} não apresentou certificado."
+                )
+            cipher = tls_socket.cipher()
+            protocol = tls_socket.version() or "desconhecido"
+            return certificate_der, protocol, cipher[0] if cipher else None
     except (ssl.SSLError, OSError) as exc:
         raise TlsInspectionError(
             f"Falha ao inspecionar TLS de {host}:{port}: {type(exc).__name__}."

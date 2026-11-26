@@ -4,7 +4,7 @@
 
 Ferramenta desktop open source para analisar boas práticas de segurança em aplicações web a partir da máquina do usuário. Ela inspeciona a superfície pública (cabeçalhos HTTP, TLS, cookies, CORS, arquivos públicos e tecnologias expostas) e gera um relatório técnico com achados classificados por severidade e sugestões de correção baseadas em OWASP.
 
-**Status:** Em construção — Dia 6/7 (interface desktop).
+**Status:** Versão 0.1.0 — implementação local e passiva concluída.
 
 ## ⚠️ Disclaimer / Aviso legal
 
@@ -94,10 +94,10 @@ Esta ferramenta é fornecida **"como está"**, para **fins educacionais, treinam
 │       ├── analyzers/     # headers, TLS, cookies, CORS e descoberta passiva
 │       ├── reports/       # Markdown/HTML/PDF gerados localmente
 │       └── ui/            # interface PySide6 (aviso, progresso, exportação)
-├── tests/
-├── docs/
+├── tests/              # pytest sem rede
+├── docs/               # uso, segurança e build
 ├── assets/
-└── packaging/
+└── packaging/          # especificação PyInstaller
 ```
 
 ## Roadmap (7 dias)
@@ -108,7 +108,7 @@ Esta ferramenta é fornecida **"como está"**, para **fins educacionais, treinam
 - [x] **Dia 4** — Descoberta passiva (`robots.txt`, `sitemap.xml`, `security.txt`, tecnologias)
 - [x] **Dia 5** — Gerador de relatórios Markdown/HTML/PDF com severidades e remediação
 - [x] **Dia 6** — Interface desktop com aviso de uso responsável, progresso e exportação
-- [ ] **Dia 7** — Testes, revisão, build do executável e documentação final
+- [x] **Dia 7** — Testes, revisão, build do executável e documentação final
 
 ## Como executar
 
@@ -132,6 +132,27 @@ relatorio = run_scan("https://exemplo.local")
 caminho = export_report(relatorio, "relatorio.md", ReportFormat.MARKDOWN)
 print(caminho)
 ```
+
+## Verificação e build
+
+```bash
+python -m pytest
+python -m ruff check src tests
+python -m compileall -q src
+
+# Windows (PowerShell)
+.\packaging\build.ps1
+# Linux/macOS
+sh packaging/build.sh
+```
+
+O executável gerado fica em `dist/sentinela-web-audit/`. Detalhes em [docs/BUILD.md](docs/BUILD.md).
+
+## Documentação
+
+- [Guia de uso](docs/USAGE.md) — fluxo, escopo, formatos e solução de problemas.
+- [Política de segurança](docs/SECURITY.md) — como relatar problemas e o que está fora de escopo.
+- [Build e verificação](docs/BUILD.md) — ambiente, testes e empacotamento.
 
 ## Como contribuir
 

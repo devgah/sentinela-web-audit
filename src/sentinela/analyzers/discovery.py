@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Final
 from xml.etree import ElementTree
 
@@ -458,10 +458,10 @@ def analyze_security_txt(snapshots: tuple[HttpTextSnapshot, ...]) -> list[Findin
         )
     else:
         try:
-            parsed = datetime.fromisoformat(expires.replace("Z", "+00:00"))
+            parsed = datetime.fromisoformat(expires)
             if parsed.tzinfo is None:
-                parsed = parsed.replace(tzinfo=timezone.utc)
-            if parsed < datetime.now(timezone.utc):
+                parsed = parsed.replace(tzinfo=UTC)
+            if parsed < datetime.now(UTC):
                 findings.append(
                     Finding(
                         code="discovery.security_txt.expires",
