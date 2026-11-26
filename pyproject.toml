@@ -27,6 +27,9 @@ dependencies = [
   "reportlab>=4.2,<5",
 ]
 
+[project.scripts]
+sentinela-web-audit = "sentinela.ui.app:main"
+
 [project.optional-dependencies]
 dev = [
   "pytest>=8,<9",

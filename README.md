@@ -4,7 +4,7 @@
 
 Ferramenta desktop open source para analisar boas práticas de segurança em aplicações web a partir da máquina do usuário. Ela inspeciona a superfície pública (cabeçalhos HTTP, TLS, cookies, CORS, arquivos públicos e tecnologias expostas) e gera um relatório técnico com achados classificados por severidade e sugestões de correção baseadas em OWASP.
 
-**Status:** Em construção — Dia 5/7 (relatórios Markdown/HTML/PDF).
+**Status:** Em construção — Dia 6/7 (interface desktop).
 
 ## ⚠️ Disclaimer / Aviso legal
 
@@ -70,6 +70,15 @@ Esta ferramenta é fornecida **"como está"**, para **fins educacionais, treinam
 - API local: `export_report(report, caminho)` infere o formato pela extensão (`.md`, `.html`, `.pdf`) ou aceita `ReportFormat`.
 - Nenhum relatório é enviado, sincronizado ou hospedado: a gravação acontece apenas no caminho escolhido pelo usuário.
 
+## Interface desktop (Dia 6)
+
+- Ao iniciar, um diálogo obrigatório exibe o aviso legal e exige confirmação explícita de uso apenas em alvos próprios ou autorizados; nenhuma preferência é gravada.
+- A análise roda em uma `QThread` separada, com barra de progresso e mensagens de etapa, mantendo a interface responsiva.
+- O orquestrador `run_scan()` encadeia cabeçalhos, cookies, CORS, TLS, descoberta passiva e tecnologias, montando um `ScanReport`.
+- A tabela lista severidade, código, título e status; o painel inferior mostra risco, diagnóstico, evidência, remediação e referências como texto simples.
+- A exportação grava Markdown, HTML ou PDF apenas no caminho escolhido pelo usuário, via diálogo de arquivo local.
+- Erros de alvo ou conectividade são exibidos sem encerrar o aplicativo; nenhuma telemetria, log remoto ou atualização automática existe.
+
 ## Estrutura inicial
 
 ```text
@@ -84,7 +93,7 @@ Esta ferramenta é fornecida **"como está"**, para **fins educacionais, treinam
 │       ├── core/          # configuração, modelos e utilitários
 │       ├── analyzers/     # headers, TLS, cookies, CORS e descoberta passiva
 │       ├── reports/       # Markdown/HTML/PDF gerados localmente
-│       └── ui/            # interface PySide6
+│       └── ui/            # interface PySide6 (aviso, progresso, exportação)
 ├── tests/
 ├── docs/
 ├── assets/
@@ -98,17 +107,28 @@ Esta ferramenta é fornecida **"como está"**, para **fins educacionais, treinam
 - [x] **Dia 3** — TLS, cookies e CORS
 - [x] **Dia 4** — Descoberta passiva (`robots.txt`, `sitemap.xml`, `security.txt`, tecnologias)
 - [x] **Dia 5** — Gerador de relatórios Markdown/HTML/PDF com severidades e remediação
-- [ ] **Dia 6** — Interface desktop com aviso de uso responsável, progresso e exportação
+- [x] **Dia 6** — Interface desktop com aviso de uso responsável, progresso e exportação
 - [ ] **Dia 7** — Testes, revisão, build do executável e documentação final
 
 ## Como executar
 
-A interface desktop ainda não está disponível; ela será documentada após o Dia 6. A exportação já pode ser usada pela API local:
+Instale o projeto em um ambiente local (por exemplo, `python -m venv .venv` e `pip install -e .`) e inicie a interface:
+
+```bash
+sentinela-web-audit
+# alternativa sem o script instalado:
+python -m sentinela.ui.app
+```
+
+Na janela: confirme o aviso de uso responsável, informe a URL do alvo, clique em **Analisar** e acompanhe o progresso. Depois, escolha Markdown, HTML ou PDF e use **Exportar relatório...**.
+
+A orquestração também pode ser chamada diretamente, sem interface:
 
 ```python
-from sentinela.reports import ReportFormat, ScanReport, export_report
+from sentinela.reports import ReportFormat, export_report
+from sentinela.scanner import run_scan
 
-relatorio = ScanReport(target="https://exemplo.local")
+relatorio = run_scan("https://exemplo.local")
 caminho = export_report(relatorio, "relatorio.md", ReportFormat.MARKDOWN)
 print(caminho)
 ```
